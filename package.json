@@ -1,0 +1,25 @@
+{
+  "name": "osu_exporter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "osu-parser": "^0.3.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --harmony-async-await main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/endaaman/osu_importer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/endaaman/osu_importer/issues"
+  },
+  "homepage": "https://github.com/endaaman/osu_importer#readme"
+}
