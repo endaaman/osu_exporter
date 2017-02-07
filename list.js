@@ -1,4 +1,5 @@
-const fs = require('fs')
+const Promise = require('bluebird');
+const fs = Promise.promisifyAll(require('fs'));
 const path = require('path')
 const osuParser = require('osu-parser')
 
@@ -6,7 +7,8 @@ const mapList = []
 
 class TrackInfo {
   constructor(map, baseDir) {
-    this.audioPath = path.join(baseDir, map.AudioFilename)
+    this.mapDir = baseDir
+    this.audioFile = map.AudioFilename
     this.title = map.Title
     this.titleUnicode  = map.TitleUnicode
     this.artist = map.Artist
@@ -64,10 +66,10 @@ async function parseOsuFile(pathName) {
   })
 }
 
-async function main() {
-  const SOURCE_DIR = '/mnt/6t/osu/Songs'
-  const DEST_FILE = './track.json'
+const SOURCE_DIR = '/mnt/6t/osu/Songs'
+const DEST_FILE = './track.json'
 
+async function main() {
   const mapDirs = await listDir(SOURCE_DIR)
   for (const i in mapDirs) {
     const mapDir = path.join(SOURCE_DIR, mapDirs[i])

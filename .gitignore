@@ -1,2 +1,6 @@
 output/
 node_modules/
+track.json
+not_found.json
+skipped.json
+
