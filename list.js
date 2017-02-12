@@ -1,9 +1,6 @@
-const Promise = require('bluebird');
-const fs = Promise.promisifyAll(require('fs'));
+const fs = require('fs')
 const path = require('path')
 const osuParser = require('osu-parser')
-
-const mapList = []
 
 class TrackInfo {
   constructor(map, baseDir) {
@@ -66,10 +63,14 @@ async function parseOsuFile(pathName) {
   })
 }
 
-const SOURCE_DIR = '/mnt/6t/osu/Songs'
+const SOURCE_DIR = '/home/ken/Documents/osu/Songs'
 const DEST_FILE = './track.json'
 
+let count = 0
+
 async function main() {
+  const tasks = []
+  const mapList = []
   const mapDirs = await listDir(SOURCE_DIR)
   for (const i in mapDirs) {
     const mapDir = path.join(SOURCE_DIR, mapDirs[i])
@@ -80,14 +81,20 @@ async function main() {
     for (const j in files) {
       const file = files[j]
       if (path.extname(file) === '.osu') {
-        const beatmap = await parseOsuFile(path.join(mapDir, file))
-        const info = new TrackInfo(beatmap, mapDir)
-        mapList.push(info)
-        console.log(`read: ${info.artistUnicode} - ${info.titleUnicode} `)
+        tasks.push(
+          parseOsuFile(path.join(mapDir, file))
+          .then((beatmap)=> {
+            const info = new TrackInfo(beatmap, mapDir)
+            console.log(`read: ${info.artistUnicode} - ${info.titleUnicode} `)
+            mapList.push(info)
+            count += 1
+          })
+        )
         break
       }
     }
   }
+  await Promise.all([tasks])
   console.log(`${mapList.length} tracks were read`)
   console.log(`writing json`)
   await writeFile(DEST_FILE, JSON.stringify(mapList, null, 2))

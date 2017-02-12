@@ -3,6 +3,12 @@ const path = require('path')
 const sanitize = require("sanitize-filename")
 const id3 = require('node-id3')
 
+const notFoundMap = []
+const skippedMap = []
+
+const RED = '\u001b[31m'
+const RESET = '\u001b[0m'
+
 
 async function stat(path) {
   return new Promise((resolve, reject) => {
@@ -32,11 +38,6 @@ async function writeFile(fileName, data) {
   })
 }
 
-const notFoundMap = []
-const skippedMap = []
-
-const RED = '\u001b[31m'
-const RESET = '\u001b[0m'
 const mapList = require('./track.json')
 const DEST_DIR = './output'
 
@@ -51,7 +52,10 @@ async function copy(src, dest) {
     })
   })
 }
+
+
 let count = 0
+
 async function main() {
   for (const i in mapList) {
     const m = mapList[i]
@@ -70,7 +74,8 @@ async function main() {
     const destFilePath = path.join(DEST_DIR, newFileName)
     const srcStat = await stat(srcFilePath)
     const destStat = await stat(destFilePath)
-    if (!destStat === false && srcStat.size > destStat.size) {
+    if ((destStat === false) || (srcStat.size > destStat.size * 1.1)) {
+      console.log(`overwrote: ${newFileName}`)
       await copy(srcFilePath, destFilePath)
     }
     id3.write({
@@ -79,13 +84,12 @@ async function main() {
       album: 'osu',
       genre: 'osu',
     }, destFilePath)
-    console.log(newFileName)
     count = count + 1
   }
 
   await writeFile('./not_found.json', JSON.stringify(notFoundMap, null, 2))
   await writeFile('./skipped.json', JSON.stringify(skippedMap, null, 2))
+  console.log(`Processed ${count} files`)
 }
 
 main()
-console.log(`Processed ${count} files`)
